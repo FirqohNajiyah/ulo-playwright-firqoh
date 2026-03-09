@@ -1,30 +1,33 @@
 import { test, expect } from '@playwright/test';
 
-test('Tambah user baru', async ({ page }) => {
+test('Tambah User & UKM', async ({ page }) => {
 
+  // ================= LOGIN =================
   await page.goto('https://admin.ukm.noretest.com/');
 
-  // LOGIN
   await page.getByRole('textbox', { name: 'Email' }).fill('nana123@email.com');
   await page.getByRole('textbox', { name: 'Password' }).fill('nana123');
   await page.getByRole('button', { name: 'Sign in' }).click();
 
   await page.waitForLoadState('networkidle');
 
-  // MENU USERS
+  // ================= MENU USERS =================
   await page.getByRole('link', { name: 'Users' }).click();
   await page.getByRole('link', { name: 'Tambah User & UKM' }).click();
 
-  await expect(page.getByRole('heading', { name: 'Tambah User & UKM' })).toBeVisible();
+  await page.waitForURL('**/multi-user-ukm');
 
-  // FORM
-  await page.getByLabel('Nama').fill('Dela');
-  await page.getByLabel('Username').fill('dela06');
-  await page.getByLabel('Email').fill('dela06@email.com');
-  await page.getByLabel('No Telepon').fill('085747400942');
-  await page.getByLabel('Password').fill('dela123');
+  // ================= INPUT YANG TERLIHAT =================
+  const inputs = page.locator('input:visible');
 
-  // SIMPAN
-  await page.getByRole('button', { name: 'Simpan' }).click();
+  await inputs.nth(0).fill('Test User');           
+  await inputs.nth(1).fill('testuser01');         
+  await inputs.nth(2).fill('testuser01@email.com');
+  await inputs.nth(3).fill('081234567890');       
+  await inputs.nth(4).fill('password123');        
+  await inputs.nth(5).fill('UKM Test');           
+
+  // ================= SIMPAN =================
+  await page.getByRole('button', { name: /simpan/i }).click();
 
 });
