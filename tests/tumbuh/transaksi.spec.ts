@@ -11,54 +11,67 @@ test('Transaksi pesan berhasil', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Minimal 8 karakter' })
     .fill('FirqohNa06');
 
-  await page.getByRole('button', { name: 'Masuk' })
-    .click();
+  await page.getByRole('button', { name: 'Masuk' }).click();
 
-
-  // ================= PILIH MENU PESAN =================
-  await page.getByRole('button', { name: 'Pesan' })
-    .nth(3)
-    .click();
+  // tunggu produk muncul
+  await page.locator('.MuiCard-root').first().waitFor();
 
 
   // ================= PILIH PRODUK =================
-  await page.getByRole('button')
-    .nth(2)
-    .click();
+  const produk = page.locator('.MuiCard-root').first();
+  await expect(produk).toBeVisible();
+
+  await produk.getByRole('button', { name: 'Pesan' }).click();
+
+
+  // ================= TUNGGU MODAL =================
+  const modal = page.locator('[role="dialog"]');
+  await expect(modal).toBeVisible();
+
+
+  // ================= (TIDAK PERLU TAMBAH QTY) =================
+  // qty sudah default 1 dan tombol + disabled → langsung lanjut
 
 
   // ================= KONFIRMASI PESAN =================
-  await page.getByRole('button', { name: 'Pesan' })
-    .click();
+  const tombolPesan = modal.getByRole('button', { name: /^pesan$/i });
+  await expect(tombolPesan).toBeEnabled();
+  await tombolPesan.click();
 
 
-  // ================= PILIH PEMBAYARAN =================
-  await page.getByRole('button', { name: 'Pembayaran' })
-    .click();
+  // ================= PEMBAYARAN =================
+  const tombolPembayaran = page.getByRole('button', { name: /pembayaran/i });
+  await expect(tombolPembayaran).toBeVisible();
+  await tombolPembayaran.click();
 
-  await page.getByRole('button', { name: '100.000' })
-    .click();
+  const nominal = page.getByRole('button', { name: '100.000' });
+  await expect(nominal).toBeVisible();
+  await nominal.click();
 
-  await page.getByRole('button', { name: 'Bayar' })
-    .click();
+  const tombolBayarAwal = page.getByRole('button', { name: /^bayar$/i }).first();
+  await expect(tombolBayarAwal).toBeEnabled();
+  await tombolBayarAwal.click();
 
 
   // ================= INPUT NOMOR HP =================
-  await page.getByRole('textbox', { name: '8316352725' })
-    .fill('85747400942');
+  const nomorHP = page.getByRole('textbox').last();
+  await expect(nomorHP).toBeVisible();
+  await nomorHP.fill('85747400942');
 
 
-  // ================= PROSES POPUP PEMBAYARAN =================
+  // ================= POPUP PEMBAYARAN =================
   const popupPromise = page.waitForEvent('popup');
 
-  await page.getByRole('button', { name: 'Bayar' })
-    .click();
+  const tombolBayarFinal = page.getByRole('button', { name: /^bayar$/i }).last();
+  await tombolBayarFinal.click();
 
   const popupPage = await popupPromise;
+  await popupPage.waitForLoadState();
 
 
   // ================= KONFIRMASI =================
-  await page.getByRole('button', { name: 'OK' })
-    .click();
+  const tombolOK = page.getByRole('button', { name: /^ok$/i });
+  await expect(tombolOK).toBeVisible();
+  await tombolOK.click();
 
 });
